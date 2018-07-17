@@ -129,7 +129,7 @@ class GuardianSpider(CrawlSpider):
         # Category
         category = splitUrl[3] 
         # Date
-        datetime = response.css('div.content__main-column time.content__dateline-wpd::attr(datetime)').extract_first()  # dateline-wpd always has Dates
+        datetime = response.css('div.content__main-column time.content__dateline-wpd::attr(datetime)').extract_first()  # dateline-wpd always includes Dates
         datetime = "".join(datetime)
         datetime = datetime.replace('T'," ")
         datetime = datetime[:-5]
