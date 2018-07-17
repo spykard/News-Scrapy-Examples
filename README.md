@@ -7,7 +7,7 @@ Examples of Spiders for Crawling/Scraping different News Websites.
 * Depth (Pages) of Crawling is given by the user.
 * Checks previous Runs in order to only Crawl new Articles.
 
-<br/>
+- - -
 
 ## Available Spiders
 
