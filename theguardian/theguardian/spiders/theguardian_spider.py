@@ -111,7 +111,7 @@ class GuardianSpider(CrawlSpider):
         rawtext = "".join(rawtext)
         # Title
         title = response.css('div.content__main-column h1.content__headline::text').extract_first()   
-        if (title is None) or (rawtext is None) or (rawtext == ''):   # Found Gallery/ad
+        if (title is None) or (rawtext is None) or (rawtext == ''):   # Found Gallery/Ad
             return
         if (title == '\n') or (rawtext == '\n'):   # Found Video Report
             return 
