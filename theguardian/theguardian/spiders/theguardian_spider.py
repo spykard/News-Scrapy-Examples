@@ -109,7 +109,7 @@ class GuardianSpider(CrawlSpider):
         # Text (UTF8 4 Bit)
         rawtext = response.css('div.content__article-body p::text').extract() 
         rawtext = "".join(rawtext)
-        #Title
+        # Title
         title = response.css('div.content__main-column h1.content__headline::text').extract_first()   
         if (title is None) or (rawtext is None) or (rawtext == ''):   # Found Gallery/ad
             return
