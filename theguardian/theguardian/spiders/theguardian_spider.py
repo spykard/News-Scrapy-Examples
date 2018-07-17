@@ -57,7 +57,6 @@ class GuardianSpider(CrawlSpider):
     lastDate = "0"
     depth = 0
     allowed_domains = ['www.theguardian.com']
-
          
     def start_requests(self):
         self.count = GetCountfromDB() # Count
@@ -68,8 +67,8 @@ class GuardianSpider(CrawlSpider):
 
         urls = [
             'https://www.theguardian.com/' + 'world/all',
-            #'https://www.theguardian.com/' + 'sport/all',
-            #'https://www.theguardian.com/' + 'politics/all',
+            'https://www.theguardian.com/' + 'sport/all',
+            'https://www.theguardian.com/' + 'politics/all',
             #'https://www.theguardian.com/' + 'culture/all',
             #'https://www.theguardian.com/' + 'commentisfree/all',
             #'https://www.theguardian.com/' + 'environment/all',
@@ -77,9 +76,8 @@ class GuardianSpider(CrawlSpider):
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)   
 
-    def parse(self, response):
-                
-        # Check Current Page vs. Last Article in DB Date
+    def parse(self, response):                
+        # Check Current Page Date vs. Last Article in DB Date
         currentPageDate = [] 
         for y in range(0, len(response.css('div.fc-container__header time.fc-date-headline::attr(datetime)'))):
             x = time.strptime(response.css('div.fc-container__header time.fc-date-headline::attr(datetime)')[y].extract(), "%Y-%m-%d")
@@ -103,45 +101,48 @@ class GuardianSpider(CrawlSpider):
             yield scrapy.Request(next_page, callback=self.parse)
         
     def parse_pageX(self, response):
-        # RULES : These are not Articles
-        spliturl = response.url.split( '/' )
-        if (spliturl[4] == 'live') or (spliturl[5] == 'live') or (spliturl[4] == 'ng-interactive'): 
+        splitUrl = response.url.split('/')
+
+        # Rules : These are not Articles
+        if (splitUrl[4] == 'live') or (splitUrl[5] == 'live') or (splitUrl[4] == 'ng-interactive'): 
             return
         #
 
         #Title
-        titlename = response.css('div.content__main-column h1.content__headline::text').extract_first()
-        if titlename is None:   # Found Galery/ad
+        title = response.css('div.content__main-column h1.content__headline::text').extract_first()
+        if title is None:   # Found Galery/ad
             return
-        if titlename == '\n':   # Found Video Report
+        if title == '\n':   # Found Video Report
             return 
-        titlename = titlename.strip( '\n' )
-        titlename = titlename.replace("/", "")    # Invalid File Characters
-        titlename = titlename.replace(":", "")
-        titlename = titlename.replace('"',"'")
-        titlename = titlename.replace('?',"'")
-        
-        #.HTML Output the Title
-        filename = 'Article' + str(self.count) 
-        filename += ' -- ' + titlename + '.html'
-        with open(filename, 'wb') as f:
-            f.write(response.body)
+        title = title.strip( '\n' )
+        title = title.replace("/", "")  # Invalid Title Characters   
+        title = title.replace(":", "")
+        title = title.replace('"',"'")
+        title = title.replace('?',"'")
+        #
         
         # Text (UTF8 4 Bit)
-        actualtext = response.css('div.content__article-body p::text').extract() 
-        actualtext = "".join(actualtext)
+        rawtext = response.css('div.content__article-body p::text').extract() 
+        rawtext = "".join(rawtext)
         # Author
         author = response.css('div.content__main-column p.byline a.tone-colour span::text').extract() 
         author = "".join(author)
-        author = author.strip( '\n' )
+        author = author.strip('\n')
         # Category
-        category = spliturl[3] 
-        # Time
-        dateandtime = response.css('div.content__main-column time.content__dateline-wpd::attr(datetime)').extract_first() # sto dateline-wpd Guardian always has Dates
-        dateandtime = "".join(dateandtime)
-        dateandtime = dateandtime.replace('T'," ")
-        dateandtime = dateandtime[:-5]
+        category = splitUrl[3] 
+        # Date
+        datetime = response.css('div.content__main-column time.content__dateline-wpd::attr(datetime)').extract_first()  # dateline-wpd always has Dates
+        datetime = "".join(datetime)
+        datetime = datetime.replace('T'," ")
+        datetime = datetime[:-5]
        
-        WritetoDB(self.count, actualtext, titlename, author, category, dateandtime, response.url)
+        # DB Output
+        WritetoDB(self.count, rawtext, title, author, category, datetime, response.url)
  
+        # .HTML Output
+        filename = 'Article' + str(self.count) 
+        filename += ' -- ' + title + '.html'
+        with open(filename, 'wb') as f:
+            f.write(response.body)
+
         self.count += 1           
