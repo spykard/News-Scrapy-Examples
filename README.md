@@ -7,13 +7,15 @@ Examples of Spiders for Crawling/Scraping different News Websites.
 * Depth (Pages) of Crawling is given by the user.
 * Checks previous Runs in order to only Crawl new Articles.
 
+<br/>
+
 ## Available Spiders
 
 * TheGuardian
 * Vox
 
 ## Output
-To a MySQL Database of the following format:
+To a MySQL Database of the following format and to a .HTML:
 
 | id      | rawtext | title   | author  | category| date    | url     |
 |:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
@@ -28,4 +30,6 @@ cd News-Scrapy-Examples/theguardian
 scrapy crawl theguardian -a depth=10  # Depth of your Choice
 ```
 
-<img src="https://raw.githubusercontent.com/spykard/News-Scrapy-Examples/master/Screenshots/Example.png">
+<br/>
+
+<img src="https://raw.githubusercontent.com/spykard/News-Scrapy-Examples/master/Screenshots/Example.PNG">
