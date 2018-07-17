@@ -60,9 +60,7 @@ class GuardianSpider(CrawlSpider):
          
     def start_requests(self):
         self.count = GetCountfromDB() # Count
-        print(GetCountfromDB()) 
-        self.lastDate = GetLastDatefromDB() # Date
-        print(GetLastDatefromDB())         
+        self.lastDate = GetLastDatefromDB() # Date        
         self.depth = int(getattr(self, 'depth', None)) # Crawl Depth
 
         urls = [
@@ -104,15 +102,18 @@ class GuardianSpider(CrawlSpider):
         splitUrl = response.url.split('/')
 
         # Rules : These are not Articles
-        if (splitUrl[4] == 'live') or (splitUrl[5] == 'live') or (splitUrl[4] == 'ng-interactive'): 
+        if (splitUrl[4] == 'live') or (splitUrl[5] == 'live') or (splitUrl[4] == 'gallery') or (splitUrl[4] == 'ng-interactive'): 
             return
         #
 
+        # Text (UTF8 4 Bit)
+        rawtext = response.css('div.content__article-body p::text').extract() 
+        rawtext = "".join(rawtext)
         #Title
-        title = response.css('div.content__main-column h1.content__headline::text').extract_first()
-        if title is None:   # Found Galery/ad
+        title = response.css('div.content__main-column h1.content__headline::text').extract_first()   
+        if (title is None) or (rawtext is None) or (rawtext == ''):   # Found Gallery/ad
             return
-        if title == '\n':   # Found Video Report
+        if (title == '\n') or (rawtext == '\n'):   # Found Video Report
             return 
         title = title.strip( '\n' )
         title = title.replace("/", "")  # Invalid Title Characters   
@@ -121,9 +122,6 @@ class GuardianSpider(CrawlSpider):
         title = title.replace('?',"'")
         #
         
-        # Text (UTF8 4 Bit)
-        rawtext = response.css('div.content__article-body p::text').extract() 
-        rawtext = "".join(rawtext)
         # Author
         author = response.css('div.content__main-column p.byline a.tone-colour span::text').extract() 
         author = "".join(author)
